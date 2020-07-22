@@ -1,5 +1,4 @@
 import os
-
 import my_settings
 
 BASE_DIR    =   os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,6 +15,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'users',
 ]
 
 MIDDLEWARE = [
