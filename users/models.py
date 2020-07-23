@@ -6,14 +6,13 @@ class Users(models.Model):
     #    ('male', 'Male'),
     #    ('female', 'Female'),
     #)
-
-    userid = models.CharField(max_length=250)
+    email = models.CharField(max_length=250)
     password = models.CharField(max_length=300)
-    phone_no = models.CharField(max_length = 20)
+    phone_number = models.CharField(max_length = 20)
     birthday = models.DateField()
     name = models.CharField(max_length = 10)
     gender = models.CharField(max_length=10)
-    on_notification = models.BooleanField(default = False)
+    is_notified = models.BooleanField(default = False)
     created_at = models.DateTimeField(auto_now_add =True)
     modified_at = models.DateTimeField(auto_now = True)
 
@@ -22,7 +21,6 @@ class Meta:
 
 def __str__(self):
     return self.userid
-
 
 
 

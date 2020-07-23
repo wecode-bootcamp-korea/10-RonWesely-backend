@@ -83,7 +83,7 @@ class SignIn(View):
                 if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
                     token = jwt.encode({'userid':data['userid']}, my_settings.SECRET_KEY['secret'], algorithm="HS256")
                     access_token = token.decode('utf-8')
-                    return JsonResponse({'message': '로그인 성공'}, status=200)
+                    return JsonResponse({'message' : '로그인 성공'}, user.name, status=200)
 
                 else:
                     return JsonResponse({'Message':'Password error'}, status=400)
