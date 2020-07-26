@@ -18,8 +18,7 @@ class SignUp(View):
                 return JsonResponse({'message':'invalid_email'}, status=400)
 
             if len(data['password']) < 6:
-                return JsonResponse({'message':'at_least_6_digits_please'}, status=400)
-            
+                return JsonResponse({'message':'at_least_6_digits_please'}, status=400)            
             password = data['password'].encode('utf-8')
             password_crypt = bcrypt.hashpw(password, bcrypt.gensalt())
             password_crypt = password_crypt.decode('utf-8')
