@@ -1,7 +1,7 @@
 import json
 import bcrypt
 
-from .models import User, Gender, Path_result, Path, Shipping
+from .models import User, Gender #Path_result, Path, Shipping
 from django.test import TestCase
 from django.test import Client
 from unittest.mock import patch, MagicMock
