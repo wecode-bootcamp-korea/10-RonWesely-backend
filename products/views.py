@@ -12,21 +12,21 @@ class ProductDetail(View):
             if product_id >= 1 and product_id < 3:
                 product_color   = ProductColor.objects.get(product_id=product_id,color_id=1)
                 price           = f'{int(product_color.price):,}'
-                product_info    =   {
+                product_info    =   [{
                                         "name"        : product.name,
                                         "description" : product.description,
                                         "price"       : price
-                                    }
+                                    }]
                 return JsonResponse({'Info':product_info}, status=200)
 
             if product_id == 3:
                 blade_product   = BladeProduct.objects.get(product_id=product_id)
                 price           = f'{int(blade_product.price):,}'
-                product_info    =   {
+                product_info    =   [{
                                         "name"        : product.name,
                                         "description" : product.description,
                                         "price"       : price
-                                    }
+                                    }]
                 return JsonResponse({'Info':product_info}, status=200)
 
             if product_id >= 4 and product_id < 6:
