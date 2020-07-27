@@ -36,7 +36,8 @@ class ProductDetail(View):
                                                 'product_size'     : product_size.size.name,
                                                 'product_price'    : f'{int(product_size.price):,}',
                                                 'size_description' : product_size.size.description
-                                            } for product_size in list(prefetch_product_size.productsize_set.all())]
+                                            } for product_size
+                                            in list(prefetch_product_size.productsize_set.filter(skin_type_id=1)|prefetch_product_size.productsize_set.filter(skin_type_id=None))]
                 return JsonResponse({'Info':product_size_data},status=200)
 
         except Product.DoesNotExist:

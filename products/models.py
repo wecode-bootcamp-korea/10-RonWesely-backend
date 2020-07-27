@@ -1,8 +1,10 @@
 from django.db import models
 
 class Product(models.Model):
-    name        = models.CharField(max_length=20)
-    description = models.CharField(max_length=50)
+    name            = models.CharField(max_length=20)
+    description     = models.CharField(max_length=50)
+    product_size    = models.ManyToManyField('Size',through='ProductSize')
+    product_color   = models.ManyToManyField('Color',through='ProductColor')
 
     class Meta:
         db_table = 'products'
@@ -28,7 +30,7 @@ class Color(models.Model):
         db_table = 'colors'
 
 class SkinType(models.Model):
-    name    = models.CharField(max_length=20)
+    name    = models.CharField(max_length=10)
 
     class Meta:
         db_table = 'skin_types'
