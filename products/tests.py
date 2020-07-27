@@ -2,8 +2,8 @@ from django.test    import TestCase,Client
 
 class ProductTest(TestCase):
     def test_get_product_success_view(self):
-        client=Client()
-        response=self.client.get('products/1')
+        client   = Client()
+        response = self.client.get('products/1')
         self.assertEqual(response.status_code,200)
         self.assertEqual(response.json(), {
                                             "Info": [
