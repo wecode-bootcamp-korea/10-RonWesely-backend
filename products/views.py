@@ -2,6 +2,7 @@ from django.http        import JsonResponse
 from django.views       import View
 
 from products.models    import (
+    Category,
     Product,
     BladeProduct,
     ProductColor
@@ -11,30 +12,31 @@ class ProductDetail(View):
 
     def get(self,request,product_id):
         try:
-            product = Product.objects.get(id=product_id)
-            print("product=",end=""), print(product)
+            Product.objects.filter(id=product_id).exists()
+            product     = Product.objects.get(id=product_id)
+            category_id = Category.objects.prefetch_related('product_set').get(id=Product.objects.get(id=product_id).category_id).id
 
-            if product_id >= 1 and product_id < 3:
+            if category_id == 1:
                 product_color   = ProductColor.objects.get(product_id=product_id,color_id=1)
                 price           = f'{int(product_color.price):,}'
                 product_info    = [{
-                    "name"        : product.name,
-                    "description" : product.description,
-                    "price"       : price
+                    "product_name"        : product.name,
+                    "product_description" : product.description,
+                    "product_price"       : price
                 }]
                 return JsonResponse({'Info':product_info}, status=200)
 
-            if product_id == 3:
+            if category_id == 2:
                 blade_product   = BladeProduct.objects.get(product_id=product_id)
                 price           = f'{int(blade_product.price):,}'
                 product_info    = [{
-                    "name"        : product.name,
-                    "description" : product.description,
-                    "price"       : price
+                    "product_name"        : product.name,
+                    "product_description" : product.description,
+                    "product_price"       : price
                 }]
                 return JsonResponse({'Info':product_info}, status=200)
 
-            if product_id >= 4 and product_id < 6:
+            if category_id == 3:
                 prefetch_product_size   = Product.objects.prefetch_related('productsize_set').get(id=product_id)
                 product_size_data       = [{
                     'product_name'     : product.name,
