@@ -17,7 +17,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'products.apps.ProductsConfig',
-    'orders.apps.OrdersConfig',
     'users.apps.UsersConfig',
 ]
 
