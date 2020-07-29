@@ -1,10 +1,22 @@
 import  json
 
-from django.http        import JsonResponse
-from django.views       import View
+from django.http    import JsonResponse
+from django.views   import View
 
-from products.models    import Product,BladeProduct,ProductColor,ProductSize,Color,Size
-from orders.models      import Order,OrderStatus,OrderItem,OrderImage
+from products.models    import (
+    Product,
+    BladeProduct,
+    ProductColor,
+    ProductSize,
+    Color,
+    Size
+)
+from orders.models      import (
+    Order,
+    OrderStatus,
+    OrderItem,
+    OrderImage
+)
 from utils              import auth_decorator
 
 class OrderColorItem(View):
@@ -16,7 +28,7 @@ class OrderColorItem(View):
         try:
             product_id       = data['product_id']
             color_id         = data['color_id']
-            product_color_id = ProductColor.objects.get(product_id = product_id,color_id = color_id).id
+            product_color_id = ProductColor.objects.get(product_id = product_id, color_id = color_id).id
             user_id          = request.user.id
 
             if not Order.objects.filter(user_id=user_id,order_status_id=1).exists():
@@ -29,10 +41,16 @@ class OrderColorItem(View):
                     user_id         = user_id
                 ).save()
 
-            user_order   = Order.objects.get(user_id=user_id,order_status_id=1)
+            user_order   = Order.objects.get(
+                user_id=user_id,
+                order_status_id=1
+            )
 
             if OrderItem.objects.filter(products_colors_id=product_color_id,order_id=user_order.id):
-                color_product_item          = OrderItem.objects.get(products_colors_id=product_color_id,order_id=user_order.id)
+                color_product_item          = OrderItem.objects.get(
+                    products_colors_id=product_color_id,
+                    order_id=user_order.id
+                )
                 color_product_item.quantity += 1
                 color_product_item.save()
                 user_order.shipping_price   =  0
@@ -82,8 +100,8 @@ class CartList(View):
     def get(self,request):
 
         try:
-            user_id          = request.user.id
-            user_order   = Order.objects.get(user_id=user_id,order_status_id=1)
+            user_id    = request.user.id
+            user_order = Order.objects.get(user_id = user_id,order_status_id = 1)
 
             product_color_list  = OrderItem.objects.filter(order_id=user_order.id,products_colors_id__isnull=False)
             product_size_list   = OrderItem.objects.filter(order_id=user_order.id,products_sizes_id__isnull=False)
@@ -99,6 +117,7 @@ class CartList(View):
             } for item in product_color_list]
 
             order_status =  [{
+                'order_id'          : user_order.id,
                 'shipping_price'    : user_order.shipping_price,
                 'discount_price'    : user_order.discount_price,
                 'total_price'       : user_order.list_price-user_order.discount_price

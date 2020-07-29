@@ -1,22 +1,19 @@
 import json
 
-from django.test    import (
-    TestCase,
-    Client
+from django.test     import (
+TestCase,
+Client
 )
-
-from users.models   import (
-    User,
-    Gender
+from users.models    import (
+User,
+Gender
 )
-
 from products.models import (
-    Product,
-    Color,
-    ProductColor
+Product,
+Color,
+ProductColor
 )
-
-from orders.models  import (
+from orders.models   import (
     Order,
     OrderStatus,
     OrderItem,
