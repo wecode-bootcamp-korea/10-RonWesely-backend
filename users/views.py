@@ -40,7 +40,7 @@ class SignUp(View):
             birthday_edit = birthyear + '-' + birthmonth + '-' + birthdate
 
             User.objects.create(
-               email = data['email'],
+               email        = data['email'],
                password     = password_crypt,
                phone_number = data['phone_number'],
                birthday     = birthday_edit,
@@ -62,7 +62,6 @@ class SignInWhenEmailExists(View):
             user_name    = list(user.name)
             user_name[1] = '*'
             user_name_s  = "".join(user_name)
-
             return JsonResponse({'name':user_name_s}, status=200)
 
             
@@ -90,6 +89,7 @@ class MyPage(View):
    def get(self, request):
         email= request.user.email
         name = request.user.name
+
         return JsonResponse({'email': email, 'name': name}, status=200)
 
 
