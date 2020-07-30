@@ -1,8 +1,17 @@
 from django.db import models
 
+class Category(models.Model):
+    name = models.CharField(max_length=20)
+
+    class Meta:
+        db_table = 'categories'
+
 class Product(models.Model):
-    name        = models.CharField(max_length=20)
-    description = models.CharField(max_length=50)
+    category        = models.ForeignKey('Category',on_delete=models.SET_NULL,null=True)
+    name            = models.CharField(max_length=20)
+    description     = models.CharField(max_length=50)
+    product_size    = models.ManyToManyField('Size',through='ProductSize')
+    product_color   = models.ManyToManyField('Color',through='ProductColor')
 
     class Meta:
         db_table = 'products'
@@ -28,7 +37,7 @@ class Color(models.Model):
         db_table = 'colors'
 
 class SkinType(models.Model):
-    name    = models.CharField(max_length=20)
+    name    = models.CharField(max_length=10)
 
     class Meta:
         db_table = 'skin_types'
@@ -49,3 +58,10 @@ class ProductSize(models.Model):
 
     class Meta:
         db_table = 'products_sizes'
+
+class RazorColor(models.Model):
+    color       = models.ForeignKey('Color',on_delete=models.SET_NULL,null=True)
+    image_url   = models.URLField(max_length=1000)
+
+    class Meta:
+        db_table = 'razor_colors'
