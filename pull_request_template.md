@@ -2,9 +2,28 @@
 아래 사항들을 전부 작성/체크 하시고 PR 해주세요!
 
 ## 수정 사항 간략한 한줄 요약
+(여기에 수정 사항에 대한 간략한 한줄 요약/제목 작성해 주세요. 예: 로그인 엔드포인트 구현)       
+- products App 모델링 리뷰 후, models.py 작성완료(7/22)
+- README.md 추가(7/22)
+- products App models.py 추가수정(7/24)
+- products App views.py ProductDetail Class 작성완료(7/24)
 		 
 
 ## 수정 사항들 자세한 내용
+(여기에 수정 사항에 대한 자세한 내용을 작성해 주세요)
+* 7/22 commit
+- 7/22 모델링 리뷰 후, 수정사항 반영
+- 제품에 대해 전체 카테고리 역할하는 Categories 테이블 생성
+- 면도날 제품은 별도 속성이 없어, ManytoMany가 아니므로 단일로 생성(blade_products)
+- 면도기(선물세트,면도기세트) 제품은 색상과 ManytoMany 관계이므로 colors 테이블과 ManytoMany로 생성(razor_products,razor_products_colors)
+- 스킨제품(애프터쉐이브,쉐이빙젤) 제품은 사이즈와 ManytoMany 관계이므로 sizes 테이블과 ManytoMany로 생성(skin_products,skin_products_sizes)
+- 장바구니 또는 결제내역에 담기는 사진은 order_images에 참조하는 테이블은 blade_products,razor_products_colors,skin_products_sizes
+* 7/24 commit
+- razor_products,color_products,skin_products는 중복된 내용이 생성되어 products에 포함
+- products_colors,products_sizes,blade_products로 재편성
+- order_images 테이블은 장바구니 App으로 이동
+- price column: int -> Decimal(10,2)로 변경
+- 상품상세 정보 얻어오는 products App의 ProductDetail Class 작성
 
 
 
