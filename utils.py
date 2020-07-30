@@ -1,6 +1,7 @@
 import  jwt
 import  json
 import  requests
+import  math
 
 from django.http            import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -49,37 +50,56 @@ def order_item_list(user_order):
     product_blade_list  = OrderItem.objects.filter(order_id=user_order.id,blade_products_id__isnull=False)
 
     color_item_list = [{
-        'product_id'    : Product.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).product_id).id,
-        'item_name'     : Product.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).product_id).name,
-        'color'         : Color.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).color_id).name,
-        'price'         : ProductColor.objects.get(id=item.products_colors_id).price,
-        'description'   : Product.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).product_id).description,
-        'image_url'     : OrderImage.objects.get(products_colors_id=item.products_colors_id).image_url,
-        'quantity'      : item.quantity,
+        'item_id'     : item.id,
+        'product_id'  : Product.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).product_id).id,
+        'item_name'   : Product.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).product_id).name,
+        'color'       : Color.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).color_id).name,
+        'price'       : ProductColor.objects.get(id=item.products_colors_id).price,
+        'discount_price' : item.discount_price,
+        'description' : Product.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).product_id).description,
+        'image_url'   : OrderImage.objects.get(products_colors_id=item.products_colors_id).image_url,
+        'quantity'    : item.quantity,
         } for item in product_color_list
     ]
 
     size_item_list = [{
-        'product_id'    : Product.objects.get(id=ProductSize.objects.get(id=item.products_sizes_id).product_id).id,
-        'item_name'     : Product.objects.get(id=ProductSize.objects.get(id=item.products_sizes_id).product_id).name,
-        'size'          : Size.objects.get(id=ProductSize.objects.get(id=item.products_sizes_id).size_id).name,
-        'price'         : ProductSize.objects.get(id=item.products_sizes_id).price,
-        'description'   : Product.objects.get(id=ProductSize.objects.get(id=item.products_sizes_id).product_id).description,
-        'image_url'     : OrderImage.objects.get(products_sizes_id=item.products_sizes_id).image_url,
-        'quantity'      : item.quantity,
+        'item_id'        : item.id,
+        'product_id'     : Product.objects.get(id=ProductSize.objects.get(id=item.products_sizes_id).product_id).id,
+        'item_name'      : Product.objects.get(id=ProductSize.objects.get(id=item.products_sizes_id).product_id).name,
+        'size'           : Size.objects.get(id=ProductSize.objects.get(id=item.products_sizes_id).size_id).name,
+        'price'          : ProductSize.objects.get(id=item.products_sizes_id).price,
+        'discount_price' : item.discount_price,
+        'description'    : Product.objects.get(id=ProductSize.objects.get(id=item.products_sizes_id).product_id).description,
+        'image_url'      : OrderImage.objects.get(products_sizes_id=item.products_sizes_id).image_url,
+        'quantity'       : item.quantity,
         } for item in product_size_list
     ]
 
     blade_item_list = [{
-        'product_id'    : Product.objects.get(id=BladeProduct.objects.get(id=item.blade_products_id).product_id).id,
-        'item_name'     : Product.objects.get(id=BladeProduct.objects.get(id=item.blade_products_id).product_id).name,
-        'price'         : BladeProduct.objects.get(id=item.blade_products_id).price,
-        'description'   : Product.objects.get(id=BladeProduct.objects.get(id=item.blade_products_id).product_id).description,
-        'image_url'     : OrderImage.objects.get(blade_products_id=item.blade_products_id).image_url,
-        'quantity'      : item.quantity,
+        'item_id'        : item.id,
+        'product_id'     : Product.objects.get(id=BladeProduct.objects.get(id=item.blade_products_id).product_id).id,
+        'item_name'      : Product.objects.get(id=BladeProduct.objects.get(id=item.blade_products_id).product_id).name,
+        'price'          : BladeProduct.objects.get(id=item.blade_products_id).price,
+        'discount_price' : item.discount_price,
+        'description'    : Product.objects.get(id=BladeProduct.objects.get(id=item.blade_products_id).product_id).description,
+        'image_url'      : OrderImage.objects.get(blade_products_id=item.blade_products_id).image_url,
+        'quantity'       : item.quantity
         } for item in product_blade_list
     ]
 
-    item_list = color_item_list + size_item_list + blade_item_list
+    order_status =  [{
+        'order_id'          : user_order.id,
+        'shipping_price'    : user_order.shipping_price,
+        'discount_price'    : user_order.discount_price,
+        'total_price'       : user_order.list_price - user_order.discount_price
+    }]
+
+    item_list = color_item_list + size_item_list + blade_item_list + order_status
 
     return item_list
+
+
+def round_up(n, decimals=0):
+    multiplier = 10 ** decimals
+    return math.ceil(n * multiplier) / multiplier
+

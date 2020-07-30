@@ -1,5 +1,6 @@
 import  json
 from datetime       import datetime
+from decimal        import Decimal
 
 from django.http    import JsonResponse
 from django.views   import View
@@ -20,7 +21,8 @@ from orders.models      import (
 )
 from utils              import (
     auth_decorator,
-    order_item_list
+    order_item_list,
+    round_up
 )
 
 class OrderColorItem(View):
@@ -82,12 +84,7 @@ class OrderColorItem(View):
                 user_order.list_price       += ProductColor.objects.get(id=product_color_id).price
                 user_order.save()
 
-            order_status =  [{
-                'shipping_price'    : user_order.shipping_price,
-                'discount_price'    : user_order.discount_price,
-                'total_price'       : user_order.list_price-user_order.discount_price
-            }]
-            user_order_item_list = order_item_list(user_order) + order_status
+            user_order_item_list = order_item_list(user_order)
             return JsonResponse({'Info':user_order_item_list}, status=200)
 
         except KeyError:
@@ -135,13 +132,26 @@ class OrderBulkItem(View):
                         ).save()
 
                     product_item  = OrderItem.objects.get(
-                        blade_products_id = BladeProduct.objects.get(product_id=item['product_id']).id,
-                        order_id= user_order.id
+                        blade_products_id = BladeProduct.objects.get(product_id = item['product_id']).id,
+                        order_id          = user_order.id
                     )
 
-                    product_item.quantity += int(item['quantity'])
+                    product_item.quantity   += int(item['quantity'])
+                    item_price                = float(BladeProduct.objects.get(id = product_item.blade_products_id).price)
+
+                    if product_item.quantity == 2:
+                        product_item.discount_price = product_item.quantity * item_price * 0.07
+                        product_item.discount_price = round_up(product_item.discount_price,-2)
+                    if product_item.quantity == 3:
+                        product_item.discount_price = product_item.quantity * item_price * 0.15
+                        product_item.discount_price = round_up(product_item.discount_price,-2)
+                    if product_item.quantity >= 4:
+                        product_item.discount_price = product_item.quantity * item_price * 0.2
+                        product_item.discount_price = round_up(product_item.discount_price,-2)
+
                     product_item.save()
-                    user_order.list_price += product_item.quantity * BladeProduct.objects.get(id=product_item.blade_products_id).price
+                    user_order.list_price     += product_item.quantity * BladeProduct.objects.get(id=product_item.blade_products_id).price
+                    user_order.discount_price += Decimal(product_item.discount_price)
 
                 if item['product_id'] == '4':
                     if not OrderItem.objects.filter(
@@ -160,9 +170,22 @@ class OrderBulkItem(View):
                         order_id          = user_order.id
                     )
 
-                    product_item.quantity += int(item['quantity'])
+                    product_item.quantity   += int(item['quantity'])
+                    item_price               = float(ProductSize.objects.get(id = product_item.products_sizes_id).price)
+
+                    if product_item.quantity == 2:
+                        product_item.discount_price = product_item.quantity * item_price * 0.07
+                        product_item.discount_price = round_up(product_item.discount_price,-2)
+                    if product_item.quantity == 3:
+                        product_item.discount_price = product_item.quantity * item_price * 0.15
+                        product_item.discount_price = round_up(product_item.discount_price,-2)
+                    if product_item.quantity >= 4:
+                        product_item.discount_price = product_item.quantity * item_price * 0.2
+                        product_item.discount_price = round_up(product_item.discount_price,-2)
+
                     product_item.save()
-                    user_order.list_price += product_item.quantity * ProductSize.objects.get(id=product_item.products_sizes_id).price
+                    user_order.list_price     += product_item.quantity * ProductSize.objects.get(id=product_item.products_sizes_id).price
+                    user_order.discount_price += Decimal(product_item.discount_price)
 
                 if item['product_id'] == '5':
                     if not OrderItem.objects.filter(
@@ -182,21 +205,28 @@ class OrderBulkItem(View):
                     )
 
                     product_item.quantity += int(item['quantity'])
+                    item_price              = float(ProductSize.objects.get(id = product_item.products_sizes_id).price)
+
+                    if product_item.quantity == 2:
+                        product_item.discount_price = product_item.quantity * item_price * 0.07
+                        product_item.discount_price = round_up(product_item.discount_price,-2)
+                    if product_item.quantity == 3:
+                        product_item.discount_price = product_item.quantity * item_price * 0.15
+                        product_item.discount_price = round_up(product_item.discount_price,-2)
+                    if product_item.quantity >= 4:
+                        product_item.discount_price = product_item.quantity * item_price * 0.2
+                        product_item.discount_price = round_up(product_item.discount_price,-2)
+
                     product_item.save()
-                    user_order.list_price += product_item.quantity * ProductSize.objects.get(id=product_item.products_sizes_id).price
+                    user_order.list_price       += product_item.quantity * ProductSize.objects.get(id=product_item.products_sizes_id).price
+                    user_order.discount_price   += Decimal(product_item.discount_price)
 
                 if user_order.list_price >= 15000:
                     user_order.shipping_price = 0
 
                 user_order.save()
 
-            order_status =  [{
-                'order_id'          : user_order.id,
-                'shipping_price'    : user_order.shipping_price,
-                'discount_price'    : user_order.discount_price,
-                'total_price'       : user_order.list_price - user_order.discount_price
-            }]
-            user_order_item_list = order_item_list(user_order) + order_status
+            user_order_item_list = order_item_list(user_order)
             return JsonResponse({'Info':user_order_item_list}, status=200)
 
         except KeyError:
@@ -217,13 +247,7 @@ class CartList(View):
                 order_status_id = 1
             )
 
-            order_status =  [{
-                'order_id'          : user_order.id,
-                'shipping_price'    : user_order.shipping_price,
-                'discount_price'    : user_order.discount_price,
-                'total_price'       : user_order.list_price - user_order.discount_price
-            }]
-            user_order_item_list = order_item_list(user_order) + order_status
+            user_order_item_list = order_item_list(user_order)
             return JsonResponse({'Info':user_order_item_list}, status=200)
 
         except Order.DoesNotExist:
@@ -247,13 +271,7 @@ class CheckOut(View):
             paid_user_order.ordered_at      = datetime.now()
             paid_user_order.save()
 
-            order_status =  [{
-                'order_id'       : paid_user_order.id,
-                'shipping_price' : paid_user_order.shipping_price,
-                'discount_price' : paid_user_order.discount_price,
-                'total_price'    : paid_user_order.list_price - paid_user_order.discount_price
-            }]
-            user_order_item_list = order_item_list(paid_user_order) + order_status
+            user_order_item_list = order_item_list(paid_user_order)
             return JsonResponse({'Info':user_order_item_list}, status=200)
 
         except KeyError:
