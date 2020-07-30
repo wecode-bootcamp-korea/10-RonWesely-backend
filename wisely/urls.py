@@ -1,6 +1,7 @@
-#from django.contrib import admin
-from django.urls import include, path
+from django.contrib import admin
+from django.urls    import path,include
 
 urlpatterns = [
-    path('users', include('users.urls')),
+    path('user',include('users.urls')),
+    path('product',include('products.urls')),
 ]
