@@ -28,36 +28,28 @@ class ReviewView(View):
             name_l = list(name)
             name_l[1] = '*'
             name2 = "".join(name_l)
-                                                   
+
             birthyear=birthday.year
+
             ages = math.floor(int(2020-birthyear))
+            ages_s = str(ages)
+            ages_s = ages_s + '대'
+
+            writed_at = Review.objects.get(id=review_id).writed_at
+            writed_at_year = str(writed_at.year)
+            writed_at_month = str(writed_at.month)
+            writed_at_day = str(writed_at.day)
+            writed_at_date = writed_at_year + '.0' + writed_at_month + '.' + writed_at_day
 
             for review in reviews:
                 review_result_dic = {
                     'rate' : Review.objects.get(id=review.id).rate,
                     'review_text' : Review.objects.get(id=review.id).review_text,
-                    'writed_at' : Review.objects.get(id=review.id).writed_at,
+                    'writed_at' : writed_at_date,
                     'name' : name2,
-                    'ages' : ages
+                    'ages' : ages_s
                 }
                 review_result.append(review_result_dic)
-
-            #print('확인값:'+user_id)
-            #print('--------------------')
-            #print(review.order_item_id)
-            #print(review.rate)
-            #print(review.review_text)
-            #print(review.writed_at)
-            #print(name)
-            #print(birthday)
-            
-            #print(order_item_id)
-            #print(user_id)
-            #print(name)
-            #print(birthday)
-    
-
-            #print(type(birthday))
 
 
             return JsonResponse ({"review_result" : review_result}, status=200)
