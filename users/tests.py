@@ -138,13 +138,3 @@ class SignUpTest(TestCase):
 #        client = Client()
 #        response = client.get('/user/SignIn?user=alex@gmail.com')
 #        self.assertEqual(response.status_code, 404)
-#
-#
-#
-#
-#
-#
-#
-#
-#
-## Create your tests here.
