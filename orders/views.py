@@ -137,7 +137,7 @@ class OrderBulkItem(View):
                     )
 
                     product_item.quantity   += int(item['quantity'])
-                    item_price                = float(BladeProduct.objects.get(id = product_item.blade_products_id).price)
+                    item_price               = float(BladeProduct.objects.get(id = product_item.blade_products_id).price)
 
                     if product_item.quantity == 2:
                         product_item.discount_price = product_item.quantity * item_price * 0.07
@@ -204,8 +204,8 @@ class OrderBulkItem(View):
                         order_id          = user_order.id
                     )
 
-                    product_item.quantity += int(item['quantity'])
-                    item_price              = float(ProductSize.objects.get(id = product_item.products_sizes_id).price)
+                    product_item.quantity   += int(item['quantity'])
+                    item_price               = float(ProductSize.objects.get(id = product_item.products_sizes_id).price)
 
                     if product_item.quantity == 2:
                         product_item.discount_price = product_item.quantity * item_price * 0.07
