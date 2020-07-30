@@ -1,4 +1,5 @@
 import  json
+from datetime       import datetime
 
 from django.http    import JsonResponse
 from django.views   import View
@@ -17,7 +18,10 @@ from orders.models      import (
     OrderItem,
     OrderImage
 )
-from utils              import auth_decorator
+from utils              import (
+    auth_decorator,
+    order_item_list
+)
 
 class OrderColorItem(View):
 
@@ -28,10 +32,16 @@ class OrderColorItem(View):
         try:
             product_id       = data['product_id']
             color_id         = data['color_id']
-            product_color_id = ProductColor.objects.get(product_id = product_id, color_id = color_id).id
+            product_color_id = ProductColor.objects.get(
+                product_id = product_id,
+                color_id   = color_id
+            ).id
             user_id          = request.user.id
 
-            if not Order.objects.filter(user_id=user_id,order_status_id=1).exists():
+            if not Order.objects.filter(
+                user_id         = user_id,
+                order_status_id = 1
+            ).exists():
                 Order(
                     shipping_price  = 0,
                     list_price      = 0,
@@ -42,23 +52,26 @@ class OrderColorItem(View):
                 ).save()
 
             user_order   = Order.objects.get(
-                user_id=user_id,
-                order_status_id=1
+                user_id         = user_id,
+                order_status_id = 1
             )
 
-            if OrderItem.objects.filter(products_colors_id=product_color_id,order_id=user_order.id):
-                color_product_item          = OrderItem.objects.get(
-                    products_colors_id=product_color_id,
-                    order_id=user_order.id
+            if OrderItem.objects.filter(
+                products_colors_id = product_color_id,
+                order_id           = user_order.id
+            ):
+                color_product_item = OrderItem.objects.get(
+                    products_colors_id = product_color_id,
+                    order_id           = user_order.id
                 )
                 color_product_item.quantity += 1
                 color_product_item.save()
                 user_order.shipping_price   =  0
-                user_order.list_price       += color_product_item.quantity*ProductColor.objects.get(id=color_product_item.products_colors_id).price
+                user_order.list_price       += color_product_item.quantity * ProductColor.objects.get(id=color_product_item.products_colors_id).price
                 user_order.save()
 
             else:
-                OrderItem   (
+                OrderItem (
                     order_id            = user_order.id,
                     products_colors_id  = product_color_id,
                     quantity            = 1,
@@ -69,30 +82,128 @@ class OrderColorItem(View):
                 user_order.list_price       += ProductColor.objects.get(id=product_color_id).price
                 user_order.save()
 
-            product_color_list  = OrderItem.objects.filter(order_id=user_order.id,products_colors_id__isnull=False)
-            product_size_list   = OrderItem.objects.filter(order_id=user_order.id,products_sizes_id__isnull=False)
-            product_blade_list  = OrderItem.objects.filter(order_id=user_order.id,blade_products_id__isnull=False)
-
-            color_item_list =[{
-                'item_name'     : Product.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).product_id).name,
-                'color'         : Color.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).color_id).name,
-                'price'         : ProductColor.objects.get(id=item.products_colors_id).price,
-                'description'   : Product.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).product_id).description,
-                'image_url'     : OrderImage.objects.get(products_colors_id=item.products_colors_id).image_url,
-                'quantity'      : item.quantity,
-            } for item in product_color_list]
-
             order_status =  [{
                 'shipping_price'    : user_order.shipping_price,
                 'discount_price'    : user_order.discount_price,
                 'total_price'       : user_order.list_price-user_order.discount_price
             }]
-            user_order_item_list = color_item_list + order_status
-
+            user_order_item_list = order_item_list(user_order) + order_status
             return JsonResponse({'Info':user_order_item_list}, status=200)
 
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+
+        except Order.DoesNotExist:
+            return JsonResponse({'message':'INVALID_ORDER'},status=400)
+
+class OrderBulkItem(View):
+
+    @auth_decorator
+    def post(self,request):
+
+        try:
+            data           = json.loads(request.body)
+            bulk_item_list = data['Info']
+            user_id        = request.user.id
+
+            for item in bulk_item_list:
+                if not Order.objects.filter(user_id=user_id,order_status_id=1).exists():
+                    Order(
+                        shipping_price  = 2500,
+                        list_price      = 0,
+                        discount_price  = 0,
+                        total_price     = 0,
+                        order_status_id = 1,
+                        user_id         = user_id
+                    ).save()
+
+                user_order = Order.objects.get(
+                    user_id         = user_id,
+                    order_status_id = 1
+                )
+
+                if item['product_id'] == '3':
+                    if not OrderItem.objects.filter(
+                        blade_products_id = BladeProduct.objects.get(id = 1).id,
+                        order_id          = user_order.id
+                    ):
+                        OrderItem(
+                            order_id            = user_order.id,
+                            blade_products_id   = BladeProduct.objects.get(id=1).id,
+                            quantity            = 0,
+                            discount_price      = 0
+                        ).save()
+
+                    product_item  = OrderItem.objects.get(
+                        blade_products_id = BladeProduct.objects.get(product_id=item['product_id']).id,
+                        order_id= user_order.id
+                    )
+
+                    product_item.quantity += int(item['quantity'])
+                    product_item.save()
+                    user_order.list_price += product_item.quantity * BladeProduct.objects.get(id=product_item.blade_products_id).price
+
+                if item['product_id'] == '4':
+                    if not OrderItem.objects.filter(
+                        products_sizes_id = ProductSize.objects.get(id = 1).id,
+                        order_id          = user_order.id
+                    ):
+                        OrderItem(
+                            order_id            = user_order.id,
+                            products_sizes_id   = ProductSize.objects.get(id=1).id,
+                            quantity            = 0,
+                            discount_price      = 0
+                        ).save()
+
+                    product_item  = OrderItem.objects.get(
+                        products_sizes_id = ProductSize.objects.get(id = 1).id,
+                        order_id          = user_order.id
+                    )
+
+                    product_item.quantity += int(item['quantity'])
+                    product_item.save()
+                    user_order.list_price += product_item.quantity * ProductSize.objects.get(id=product_item.products_sizes_id).price
+
+                if item['product_id'] == '5':
+                    if not OrderItem.objects.filter(
+                        products_sizes_id = ProductSize.objects.get(id = 3).id,
+                        order_id          = user_order.id
+                    ):
+                        OrderItem(
+                            order_id            = user_order.id,
+                            products_sizes_id   = ProductSize.objects.get(id=3).id,
+                            quantity            = 0,
+                            discount_price      = 0
+                        ).save()
+
+                    product_item  = OrderItem.objects.get(
+                        products_sizes_id = ProductSize.objects.get(id = 3).id,
+                        order_id          = user_order.id
+                    )
+
+                    product_item.quantity += int(item['quantity'])
+                    product_item.save()
+                    user_order.list_price += product_item.quantity * ProductSize.objects.get(id=product_item.products_sizes_id).price
+
+                if user_order.list_price >= 15000:
+                    user_order.shipping_price = 0
+
+                user_order.save()
+
+            order_status =  [{
+                'order_id'          : user_order.id,
+                'shipping_price'    : user_order.shipping_price,
+                'discount_price'    : user_order.discount_price,
+                'total_price'       : user_order.list_price - user_order.discount_price
+            }]
+            user_order_item_list = order_item_list(user_order) + order_status
+            return JsonResponse({'Info':user_order_item_list}, status=200)
+
+        except KeyError:
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+
+        except Order.DoesNotExist:
+            return JsonResponse({'message':'INVALID_ORDER'},status=400)
 
 class CartList(View):
 
@@ -101,30 +212,52 @@ class CartList(View):
 
         try:
             user_id    = request.user.id
-            user_order = Order.objects.get(user_id = user_id,order_status_id = 1)
-
-            product_color_list  = OrderItem.objects.filter(order_id=user_order.id,products_colors_id__isnull=False)
-            product_size_list   = OrderItem.objects.filter(order_id=user_order.id,products_sizes_id__isnull=False)
-            product_blade_list  = OrderItem.objects.filter(order_id=user_order.id,blade_products_id__isnull=False)
-
-            color_item_list = [{
-                'item_name'     : Product.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).product_id).name,
-                'color'         : Color.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).color_id).name,
-                'price'         : ProductColor.objects.get(id=item.products_colors_id).price,
-                'description'   : Product.objects.get(id=ProductColor.objects.get(id=item.products_colors_id).product_id).description,
-                'image_url'     : OrderImage.objects.get(products_colors_id=item.products_colors_id).image_url,
-                'quantity'      : item.quantity,
-            } for item in product_color_list]
+            user_order = Order.objects.get(
+                user_id         = user_id,
+                order_status_id = 1
+            )
 
             order_status =  [{
                 'order_id'          : user_order.id,
                 'shipping_price'    : user_order.shipping_price,
                 'discount_price'    : user_order.discount_price,
-                'total_price'       : user_order.list_price-user_order.discount_price
+                'total_price'       : user_order.list_price - user_order.discount_price
             }]
-            user_order_item_list = color_item_list + order_status
+            user_order_item_list = order_item_list(user_order) + order_status
+            return JsonResponse({'Info':user_order_item_list}, status=200)
 
+        except Order.DoesNotExist:
+            return JsonResponse({'message':'INVALID_ORDER'},status=400)
+
+class CheckOut(View):
+
+    @auth_decorator
+    def post(self,request):
+        data    = json.loads(request.body)
+
+        try:
+            order_id        = data['order_id']
+            user_id         = request.user.id
+            paid_user_order = Order.objects.get(
+                id = order_id,
+                order_status_id = 1
+            )
+
+            paid_user_order.order_status_id = 2
+            paid_user_order.ordered_at      = datetime.now()
+            paid_user_order.save()
+
+            order_status =  [{
+                'order_id'       : paid_user_order.id,
+                'shipping_price' : paid_user_order.shipping_price,
+                'discount_price' : paid_user_order.discount_price,
+                'total_price'    : paid_user_order.list_price - paid_user_order.discount_price
+            }]
+            user_order_item_list = order_item_list(paid_user_order) + order_status
             return JsonResponse({'Info':user_order_item_list}, status=200)
 
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+
+        except Order.DoesNotExist:
+            return JsonResponse({'message':'INVALID_ORDER'},status=400)
