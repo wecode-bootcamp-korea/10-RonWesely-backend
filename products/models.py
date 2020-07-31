@@ -66,3 +66,4 @@ class RazorColor(models.Model):
 
     class Meta:
         db_table = 'razor_colors'
+

@@ -35,7 +35,7 @@ class OrderItem(models.Model):
 class Review(models.Model):
     order_item  = models.ForeignKey('OrderItem',on_delete=models.SET_NULL,null=True)
     rate        = models.DecimalField(max_digits=10, decimal_places=2)
-    review_text = models.CharField(max_length=200)
+    review_text = models.CharField(max_length=300)
     writed_at   = models.DateTimeField(auto_now_add=True)
 
     class Meta:
