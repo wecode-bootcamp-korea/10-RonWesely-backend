@@ -62,9 +62,10 @@ class SignInWhenEmailExists(View):
             user_name    = list(user.name)
             user_name[1] = '*'
             user_name_s  = "".join(user_name)
+
             return JsonResponse({'name':user_name_s}, status=200)
 
-            
+
 class SignIn(View):
     def post(self, request):
         data = json.loads(request.body)
@@ -91,7 +92,3 @@ class MyPage(View):
         name = request.user.name
 
         return JsonResponse({'email': email, 'name': name}, status=200)
-
-
-
-

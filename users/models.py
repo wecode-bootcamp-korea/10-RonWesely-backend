@@ -17,7 +17,7 @@ class User(models.Model):
 class Gender(models.Model):
     name = models.CharField(max_length=10)
 
-    class Meta: 
+    class Meta:
         db_table = "genders"
 
 class Path(models.Model):
