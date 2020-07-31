@@ -280,11 +280,29 @@ class CheckOut(View):
         except Order.DoesNotExist:
             return JsonResponse({'message':'INVALID_ORDER'},status=400)
 
+    @auth_decorator
+    def get(self,request):
+
+        try:
+            user_id         = request.user.id
+            paid_user_order = Order.objects.get(
+                user_id         = user_id,
+                order_status_id = 2
+            )
+
+            user_order_item_list = order_item_list(paid_user_order)
+            return JsonResponse({'Info':user_order_item_list}, status=200)
+
+        except KeyError:
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+
+        except Order.DoesNotExist:
+            return JsonResponse({'message':'INVALID_ORDER'},status=400)
+
 class ReviewView(View):
     def get(self, request):
         reviews = Review.objects.all()
         review_result = []
-        #print(reviews)
 
         for review in reviews:
             review_id=Review.objects.get(id=review.id).id
@@ -318,6 +336,5 @@ class ReviewView(View):
                     'ages' : ages_s
                 }
                 review_result.append(review_result_dic)
-
 
             return JsonResponse ({"review_result" : review_result}, status=200)
