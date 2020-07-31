@@ -75,10 +75,10 @@ class SignIn(View):
                 user = User.objects.get(email=data['email'])
 
                 if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
-                    token = jwt.encode({'email':data['email']}, my_settings.SECRET_KEY['secret'], my_settings.ALGORITHM['algorithm'])
+                    token = jwt.encode({'id':user.id}, my_settings.SECRET_KEY['secret'], algorithm=my_settings.ALGORITHM['algorithm'])
                     access_token = token.decode('utf-8')
-                      
-                    return JsonResponse({'Access_Token':access_token})
+
+                    return JsonResponse({'access_token':access_token})
 
                 else:
                     return JsonResponse({'Message':'Password error'}, status=400)
@@ -89,16 +89,12 @@ class SignIn(View):
 class MyPage(View):
     def get(self, request):
         access_token = request.headers.get('Authorization', None)
-        access_token_d = jwt.decode(access_token, my_settings.SECRET_KEY['secret'], my_settings.ALGORITHM['algorithm'])
+        access_token_d = jwt.decode(access_token, my_settings.SECRET_KEY['secret'],algorithm=my_settings.ALGORITHM['algorithm'])
 
-        if not User.objects.filter(email = access_token_d['email']).exists():
+        if not User.objects.filter(id = access_token_d['id']).exists():
             return JsonResponse({'message': 'INVALID_USER'})
 
-        email = User.objects.get(email=access_token_d['email']).email
-        name = User.objects.get(email=access_token_d['email']).name
+        email = User.objects.get(id=access_token_d['id']).email
+        name = User.objects.get(id=access_token_d['id']).name
 
         return JsonResponse({'email': email, 'name': name}, status=200)
-
-
-
-
