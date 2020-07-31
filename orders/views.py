@@ -337,5 +337,4 @@ class ReviewView(View):
                 }
                 review_result.append(review_result_dic)
 
-
             return JsonResponse ({"review_result" : review_result}, status=200)
