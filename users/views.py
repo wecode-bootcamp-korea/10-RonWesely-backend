@@ -27,7 +27,6 @@ class SignUp(View):
             if len(data['phone_number']) < 10:
                 return JsonResponse({'message':'invalid_phone_number'}, status=400)
             phone_number = data['phone_number']
-            [0-9]
 
             birthday = data['birthday'] 
             birthyear = data['birthday'][0:2]
@@ -59,12 +58,12 @@ class SignInWhenEmailExists(View):
         data = json.loads(request.body)
 
         if User.objects.filter(email=data['email']).exists():
-            user         = Users.objects.get(email=data['email'])
+            user         = User.objects.get(email=data['email'])
             user_name    = list(user.name)
             user_name[1] = '*'
             user_name_s  = "".join(user_name)
 
-            return JsonResponse({'name':user_name_s}, safe=False)
+            return JsonResponse({'name':user_name_s}, safe=False, status=200)
 
             
 class SignIn(View):
