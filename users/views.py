@@ -58,22 +58,12 @@ class SignInWhenEmailExists(View):
         data = json.loads(request.body)
 
         if User.objects.filter(email=data['email']).exists():
-<<<<<<< HEAD
             user         = User.objects.get(email=data['email'])
             user_name    = list(user.name)
             user_name[1] = '*'
             user_name_s  = "".join(user_name)
-            print(user_name_s)
 
             return JsonResponse({'name':user_name_s}, safe=False, status=200)
-=======
-            user         = Users.objects.get(email=data['email'])
-            user_name    = list(user.name)
-            user_name[1] = '*'
-            user_name_s  = "".join(user_name)
-
-            return JsonResponse({'name':user_name_s}, safe=False)
->>>>>>> master
 
             
 class SignIn(View):
