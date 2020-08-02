@@ -61,6 +61,7 @@ class ProductSize(models.Model):
 
 class RazorColor(models.Model):
     color       = models.ForeignKey('Color',on_delete=models.SET_NULL,null=True)
+    eng_name    = models.CharField(max_length=20,null=True)
     image_url   = models.URLField(max_length=1000)
 
     class Meta:

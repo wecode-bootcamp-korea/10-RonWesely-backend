@@ -1,8 +1,11 @@
 from django.urls import path
-from .views import SignUp
-from .views import SignIn 
-from .views import SignInWhenEmailExists
-from .views import MyPage
+
+from .views import (
+    SignUp,
+    SignIn,
+    SignInWhenEmailExists,
+    MyPage
+)
 
 urlpatterns = [
     path('/SignUp', SignUp.as_view()),

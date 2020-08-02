@@ -59,9 +59,10 @@ class ColorDetail(View):
             Product.objects.filter(id=1).exists()
             prefetch_product_color  = Product.objects.prefetch_related('productcolor_set').get(id=1)
             product_color_data      = [{
-                'color_id'      : product_color.color.id,
-                'color_name'    : product_color.color.name,
-                'color_url'     : RazorColor.objects.get(color_id=product_color.color.id).image_url
+                'color_id'       : product_color.color.id,
+                'color_name'     : product_color.color.name,
+                'color_eng_name' : RazorColor.objects.get(color_id=product_color.color.id).eng_name, 
+                'color_url'      : RazorColor.objects.get(color_id=product_color.color.id).image_url
                 }for product_color in list(prefetch_product_color.productcolor_set.all())
             ]
             return JsonResponse({'Info':product_color_data},status=200)

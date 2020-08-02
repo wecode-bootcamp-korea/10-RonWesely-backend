@@ -1,7 +1,7 @@
 import json
 import bcrypt
 
-from .models import User, Gender, Path_result, Path, Shipping
+from .models import User, Gender 
 from django.test import TestCase
 from django.test import Client
 from unittest.mock import patch, MagicMock
@@ -138,3 +138,4 @@ class SignUpTest(TestCase):
 #        client = Client()
 #        response = client.get('/user/SignIn?user=alex@gmail.com')
 #        self.assertEqual(response.status_code, 404)
+
