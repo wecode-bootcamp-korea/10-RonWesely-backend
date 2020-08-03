@@ -1,5 +1,8 @@
 # 10-Rone-wesely-frontend
 
+## Refactoring Code
+https://github.com/sincerity10/wisely-clone-backend-refactoring.git
+
 ## 백앤드가 지켜야 할 기본 사항
 - 아침 11시 회의
 - 프론트앤드와 소통
