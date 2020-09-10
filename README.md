@@ -1,4 +1,4 @@
-# 10-Rone-wesely-frontend
+# 10-Ron-wesely-Backend
 
 ## Refactoring Code
 이곤호: https://github.com/sincerity10/wisely-clone-backend-refactoring.git
